@@ -1,0 +1,40 @@
+[project]
+name = "backlink-lens"
+version = "1.0.0"
+description = "Clean, compare and explain competitor backlink exports: column detection, de-duplication, spam flags, rating bands and an Excel report."
+requires-python = ">=3.11"
+license = "MIT"
+
+[tool.ruff]
+line-length = 160
+target-version = "py311"
+
+[tool.ruff.format]
+line-ending = "lf"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "BLE", "A", "C4", "SIM", "RUF", "PL"]
+ignore = ["S101", "RUF001", "RUF002", "RUF003", "PLR0913", "PLR2004", "PLR0912", "PLR0915", "PLR0911", "PLR0917", "S311"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S", "BLE", "SLF001", "PLC0415"]
+"backlink_lens/cli.py" = ["PLC0415", "T201"]
+"backlink_lens/ai.py" = ["PLC0415"]
+"evaluation/*" = ["T201"]
+"scripts/*" = ["T201"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+disallow_any_generics = false
+warn_return_any = false
+exclude = ["tests/"]
+
+[[tool.mypy.overrides]]
+module = ["openai.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
