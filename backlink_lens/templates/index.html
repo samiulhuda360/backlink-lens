@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Compare backlink profiles, from messy exports to one clean report.</h1>
+  <p class="lede">Upload up to {{ max_files }} backlink exports, one per competitor, from any SEO tool. Backlink Lens works
+    out which column is which, cleans and de-duplicates the rows, flags the suspicious ones, and groups every link
+    by rating and by referring domains so you can see where each competitor is strong.</p>
+</section>
+
+<section class="card">
+  <form method="post" action="{{ url_for('upload') }}" enctype="multipart/form-data" class="upload">
+    <label for="files" class="drop">
+      <strong>Choose export files</strong>
+      <span>CSV, TSV or XLSX. One file per competitor, up to {{ max_files }} files.</span>
+      <input id="files" type="file" name="files" multiple accept=".csv,.tsv,.txt,.xlsx">
+    </label>
+    <button type="submit" class="primary">Detect columns and clean</button>
+  </form>
+</section>
+
+{% if samples %}
+<section class="card sample">
+  <h2>No export handy?</h2>
+  <p>Try the bundled sample: three competitors exported from three different tools, with different headers,
+    number formats, duplicates and a few spam links.</p>
+  <ul class="files">
+    {% for name in samples %}<li>{{ name }}</li>{% endfor %}
+  </ul>
+  <form method="post" action="{{ url_for('sample') }}">
+    <button type="submit" class="secondary">Run the sample</button>
+  </form>
+</section>
+{% endif %}
+
+<section class="steps">
+  <div><span class="num">1</span><h3>Detect columns</h3><p>Headers such as "DR", "Domain Authority" or "Linking Root Domains" are matched to the same fields. Unknown ones go to the AI model, and you get the final say.</p></div>
+  <div><span class="num">2</span><h3>Clean and flag</h3><p>Numbers like "1,234" and "1.2k", dates, link types and URLs are normalised; duplicate domains are merged; spam-looking rows are flagged with a reason.</p></div>
+  <div><span class="num">3</span><h3>Compare and download</h3><p>Links are counted per rating band and per referring-domain band, with the average across competitors, and saved to an Excel workbook with a full change log.</p></div>
+</section>
+{% endblock %}

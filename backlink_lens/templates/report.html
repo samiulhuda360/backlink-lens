@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Comparison - Backlink Lens{% endblock %}
+{% macro chart(c) %}
+<svg viewBox="0 0 {{ c.width }} {{ c.height }}" class="chart" role="img" aria-label="Links per band for each competitor">
+  {% for y, label in c.gridlines %}
+    <line x1="44" x2="{{ c.width - 12 }}" y1="{{ y }}" y2="{{ y }}" class="grid"/>
+    <text x="38" y="{{ y + 4 }}" class="axis" text-anchor="end">{{ label }}</text>
+  {% endfor %}
+  {% for b in c.bars %}
+    <rect x="{{ b.x }}" y="{{ b.y }}" width="{{ b.width }}" height="{{ b.height }}" fill="{{ b.colour }}"><title>{{ b.label }}</title></rect>
+  {% endfor %}
+  {% for x, label in c.ticks %}
+    <text x="{{ x }}" y="{{ c.height - 22 }}" class="axis" text-anchor="middle">{{ label }}</text>
+  {% endfor %}
+</svg>
+<ul class="legend">{% for name, colour in c.legend %}<li><i style="background:{{ colour }}"></i>{{ name }}</li>{% endfor %}</ul>
+{% endmacro %}
+{% block content %}
+<section class="hero compact">
+  <h1>Backlink comparison</h1>
+  <p class="lede">{{ analysis.results|length }} competitor{{ 's' if analysis.results|length != 1 }} compared.
+    {% for item in analysis.files if not item.ready %}<span class="warn">{{ item.table.name }} was skipped: required columns not chosen.</span>{% endfor %}</p>
+  <div class="actions">
+    <a class="primary" href="{{ url_for('download', job_id=job_id) }}">Download Excel workbook</a>
+    <a class="secondary" href="{{ url_for('changes', job_id=job_id) }}">Change log (CSV)</a>
+    <a class="secondary" href="{{ url_for('columns', job_id=job_id) }}">Adjust columns</a>
+  </div>
+</section>
+
+{% if analysis.summary %}
+<section class="card summary">
+  <h2>In short <small>written by {{ analysis.ai_label }}</small></h2>
+  <p>{{ analysis.summary }}</p>
+</section>
+{% endif %}
+
+<section class="card">
+  <h2>What was cleaned</h2>
+  <table class="data">
+    <thead><tr><th>File</th><th>Competitor</th><th>Rows in</th><th>Clean rows</th><th>Duplicates merged</th><th>Empty rows</th><th>Values changed</th><th>Rows flagged</th></tr></thead>
+    <tbody>
+    {% for r in analysis.results %}
+      {% set s = r.summary() %}
+      <tr><td>{{ s.name }}</td><td><strong>{{ s.competitor }}</strong></td><td>{{ s.source_rows }}</td><td>{{ s.clean_rows }}</td><td>{{ s.duplicates }}</td><td>{{ s.dropped_empty }}</td><td>{{ s.changes }}</td><td>{{ s.flagged_rows }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h2>Links by domain rating <small>how strong the linking sites are</small></h2>
+  {{ chart(dr_chart) }}
+  <table class="data bands">
+    <thead><tr><th>Competitor</th>{% for l in comparison.dr_labels %}<th>{{ l }}</th>{% endfor %}<th>Median</th><th>Rated 50+</th></tr></thead>
+    <tbody>
+    {% for p in comparison.profiles %}
+      <tr><td>{{ p.competitor }}</td>{% for c in p.dr_counts %}<td>{{ c }}</td>{% endfor %}<td>{{ p.median_rating }}</td><td>{{ p.strong_links }}</td></tr>
+    {% endfor %}
+      <tr class="avg"><td>Average</td>{% for a in comparison.dr_average %}<td>{{ a }}</td>{% endfor %}<td></td><td></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h2>Links by referring domains <small>how well-linked the linking sites are</small></h2>
+  {{ chart(rd_chart) }}
+  <table class="data bands">
+    <thead><tr><th>Competitor</th>{% for l in comparison.rd_labels %}<th>{{ l }}</th>{% endfor %}</tr></thead>
+    <tbody>
+    {% for p in comparison.profiles %}
+      <tr><td>{{ p.competitor }}</td>{% for c in p.rd_counts %}<td>{{ c }}</td>{% endfor %}</tr>
+    {% endfor %}
+      <tr class="avg"><td>Average</td>{% for a in comparison.rd_average %}<td>{{ a }}</td>{% endfor %}</tr>
+    </tbody>
+  </table>
+</section>
+
+{% set gaps = comparison.gaps() %}
+{% if gaps %}
+<section class="card">
+  <h2>Link gaps <small>bands where a competitor has under half the average</small></h2>
+  <ul class="gaps">
+    {% for g in gaps %}<li><strong>{{ g.competitor }}</strong> has {{ g.count }} links in {{ g.band }} against an average of {{ g.average }}.</li>{% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<section class="card">
+  <h2>Flagged rows <small>{{ analysis.flags|length }} flags{% if analysis.flags|length > flags|length %}, first {{ flags|length }} shown; all are in the workbook{% endif %}</small></h2>
+  {% if flags %}
+  <table class="data flags">
+    <thead><tr><th>Competitor</th><th>Row</th><th>Domain</th><th>Check</th><th>What it means</th></tr></thead>
+    <tbody>
+    {% for f in flags %}
+      <tr class="{{ f.severity }}"><td>{{ f.competitor }}</td><td>{{ f.row }}</td><td>{{ f.domain }}</td><td><code>{{ f.code }}</code></td>
+        <td>{{ f.message }}{% if f.domain in analysis.explanations %}<span class="ai-note">{{ analysis.explanations[f.domain] }}</span>{% endif %}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="muted">Nothing looked suspicious.</p>{% endif %}
+</section>
+{% endblock %}

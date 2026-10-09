@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Column mapping - Backlink Lens{% endblock %}
+{% block content %}
+<section class="hero compact">
+  <h1>Check the column mapping</h1>
+  <p class="lede">Each export needs a rating, a referring-domain count and a target page. Confident matches are
+    marked, doubtful ones are highlighted, and anything the AI model suggested says so. Change a choice if it looks
+    wrong, then build the report.</p>
+</section>
+
+<form method="post" action="{{ url_for('save_columns', job_id=job_id) }}">
+  {% for item in analysis.files %}
+  <section class="card mapping">
+    <h2>{{ item.table.name }} <small>{{ item.table.rows|length }} rows, {{ item.table.headers|length }} columns</small></h2>
+    {% if not item.ready %}
+      <div class="flash error">Missing: {% for name in item.mapping.missing_required %}{{ fields[name] }}{% if not loop.last %}, {% endif %}{% endfor %}. Pick the columns below.</div>
+    {% endif %}
+    <table class="map">
+      <thead><tr><th>Field</th><th>Column in this file</th><th>Confidence</th><th>Decided by</th></tr></thead>
+      <tbody>
+      {% for name, label in fields.items() %}
+        {% set chosen = item.mapping.fields.get(name, '') %}
+        {% set source = item.mapping.source.get(name, '') %}
+        {% set conf = item.mapping.confidence.get(name) %}
+        <tr class="{% if name in required and not chosen %}missing{% elif chosen in item.mapping.uncertain %}uncertain{% elif source == 'ai' %}ai{% endif %}">
+          <td>{{ label }}{% if name in required %} <span class="req" title="required">*</span>{% endif %}</td>
+          <td>
+            <select name="{{ item.table.name }}::{{ name }}">
+              <option value="">(none)</option>
+              {% for header in item.table.headers %}
+                <option value="{{ header }}" {% if header == chosen %}selected{% endif %}>{{ header }}</option>
+              {% endfor %}
+            </select>
+          </td>
+          <td>{% if conf is not none %}<span class="conf {% if conf >= 0.85 %}high{% elif conf >= 0.6 %}mid{% else %}low{% endif %}">{{ (conf * 100)|round|int }}%</span>{% endif %}</td>
+          <td>{% if source == 'alias' %}known header{% elif source == 'fuzzy' %}close match{% elif source == 'ai' %}AI suggestion{% elif source == 'user' %}you{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% if item.mapping.unmapped %}
+      <p class="muted">Ignored columns: {{ item.mapping.unmapped|join(', ') }}</p>
+    {% endif %}
+  </section>
+  {% endfor %}
+  <div class="actions">
+    <button type="submit" class="primary">Build the comparison</button>
+    <a class="secondary" href="{{ url_for('index') }}">Start over</a>
+  </div>
+</form>
+{% endblock %}
