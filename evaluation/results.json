@@ -1,0 +1,105 @@
+{
+ "ai": "off (no AI_API_KEY)",
+ "column_detection": {
+  "headers": 112,
+  "heuristic_accuracy": 0.884,
+  "with_ai_accuracy": null,
+  "ai_headers_asked": 0,
+  "misses": [
+   {
+    "header": "Found on page",
+    "expected": "referring_page",
+    "heuristic": "first_seen",
+    "final": "first_seen"
+   },
+   {
+    "header": "Host",
+    "expected": "referring_domain",
+    "heuristic": null,
+    "final": null
+   },
+   {
+    "header": "Ref. Domain",
+    "expected": "referring_domain",
+    "heuristic": "referring_domains",
+    "final": "referring_domains"
+   },
+   {
+    "header": "Domain Power",
+    "expected": "domain_rating",
+    "heuristic": "referring_domain",
+    "final": "referring_domain"
+   },
+   {
+    "header": "Sites Linking In",
+    "expected": "referring_domains",
+    "heuristic": "referring_domain",
+    "final": "referring_domain"
+   },
+   {
+    "header": "Page To",
+    "expected": "target_url",
+    "heuristic": "referring_page",
+    "final": "referring_page"
+   },
+   {
+    "header": "Links to",
+    "expected": "target_url",
+    "heuristic": "anchor",
+    "final": "anchor"
+   },
+   {
+    "header": "Your page",
+    "expected": "target_url",
+    "heuristic": "referring_page",
+    "final": "referring_page"
+   },
+   {
+    "header": "Link label",
+    "expected": "anchor",
+    "heuristic": "referring_page",
+    "final": "referring_page"
+   },
+   {
+    "header": "Spam Score",
+    "expected": null,
+    "heuristic": "domain_rating",
+    "final": "domain_rating"
+   },
+   {
+    "header": "Language",
+    "expected": null,
+    "heuristic": "target_url",
+    "final": "target_url"
+   },
+   {
+    "header": "Page title",
+    "expected": null,
+    "heuristic": "referring_page",
+    "final": "referring_page"
+   },
+   {
+    "header": "Content type",
+    "expected": null,
+    "heuristic": "link_type",
+    "final": "link_type"
+   }
+  ]
+ },
+ "cleaning": {
+  "rows": 40,
+  "labelled_rows": 39,
+  "rows_seen": 39,
+  "competitor": "acme-outdoors.com",
+  "value_accuracy": 1.0,
+  "values_checked": 102,
+  "dedupe_accuracy": 1.0,
+  "duplicates_found": 5,
+  "empty_rows_dropped": 1,
+  "flag_precision": 1.0,
+  "flag_recall": 1.0,
+  "flags_expected": 29,
+  "flags_found": 29,
+  "flag_errors": []
+ }
+}
