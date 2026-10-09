@@ -151,7 +151,7 @@ def create_app(var_dir: Path | None = None, ai: AIClient | None = None) -> Flask
             comparison=comparison,
             dr_chart=band_chart(comparison.dr_labels, [(p.competitor, p.dr_counts) for p in comparison.profiles]),
             rd_chart=band_chart(comparison.rd_labels, [(p.competitor, p.rd_counts) for p in comparison.profiles]),
-            flags=analysis.flags[:60],
+            flags=sorted(analysis.flags, key=lambda f: f["severity"] != "warn")[:60],  # warnings first
             ai_label=client.label,
         )
 

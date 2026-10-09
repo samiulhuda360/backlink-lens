@@ -86,7 +86,7 @@
 {% endif %}
 
 <section class="card">
-  <h2>Flagged rows <small>{{ analysis.flags|length }} flags{% if analysis.flags|length > flags|length %}, first {{ flags|length }} shown; all are in the workbook{% endif %}</small></h2>
+  <h2>Flagged rows <small>{{ analysis.flags|length }} flags, warnings first{% if analysis.flags|length > flags|length %}; {{ flags|length }} shown here, all are in the workbook{% endif %}</small></h2>
   {% if flags %}
   <table class="data flags">
     <thead><tr><th>Competitor</th><th>Row</th><th>Domain</th><th>Check</th><th>What it means</th></tr></thead>
