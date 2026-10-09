@@ -84,7 +84,8 @@ def test_user_can_fix_the_mapping_and_get_a_report(client: FlaskClient) -> None:
     assert "acme.com" in report
     assert "suspicious_tld" in report
     columns = client.get(f"/jobs/{job_id}/columns").get_data(as_text=True)
-    assert "you</td>" in columns
+    assert columns.count("you</td>") == 2  # "Trust Score" was already detected; only two choices changed
+    assert "known header" in columns
 
 
 def test_unknown_job_is_404(client: FlaskClient) -> None:

@@ -16,7 +16,7 @@ from werkzeug.wrappers import Response as BaseResponse
 from .ai import AIClient, AIConfig
 from .chart import band_chart
 from .columns import FIELDS, REQUIRED
-from .pipeline import Analysis, analyse
+from .pipeline import Analysis, analyse, map_columns
 from .readers import ReadError, Table, read_file
 from .report import build_workbook, changes_csv
 
@@ -117,13 +117,19 @@ def create_app(var_dir: Path | None = None, ai: AIClient | None = None) -> Flask
     @app.post("/jobs/<job_id>/columns")
     def save_columns(job_id: str) -> BaseResponse:
         path = job_dir(job_id)
-        overrides: dict[str, dict[str, str]] = {}
+        # Keep only the choices that differ from the automatic mapping, so "decided by" stays truthful.
+        automatic = {t.name: map_columns(t, client).fields for t in load_tables(path)}
+        overrides = load_overrides(path)
         for key, value in request.form.items():
             if "::" not in key:
                 continue
             file_name, field_name = key.split("::", 1)
-            if field_name in FIELDS:
+            if field_name not in FIELDS or file_name not in automatic:
+                continue
+            if value != automatic[file_name].get(field_name, ""):
                 overrides.setdefault(file_name, {})[field_name] = value
+            else:
+                overrides.get(file_name, {}).pop(field_name, None)
         (path / "mapping.json").write_text(json.dumps(overrides, ensure_ascii=False, indent=1), encoding="utf-8")
         return redirect(url_for("report", job_id=job_id))
 
