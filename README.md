@@ -159,6 +159,7 @@ All evaluation data is invented and hand-labelled. It lives in `evaluation/data/
 | What is measured | Labelled set | Result |
 | --- | --- | --- |
 | Column detection, rules only | 112 headers seen in backlink exports, 18 of them columns that should be ignored | **88.4%** mapped to the right field |
+| Column detection, rules + AI (`gemini-flash-lite-latest`) | The same 112 headers; the 31 doubtful or unmapped ones are sent to the model | **91.1%** mapped to the right field |
 | Cleaned values (domain, rating, referring domains) | 102 values in 39 messy rows (`messy.csv`) | **100%** |
 | De-duplication: right rows kept or dropped | 39 rows, 5 duplicates and 1 blank row | **100%** |
 | Flags: precision / recall | 29 expected flags on those rows | **100% / 100%** |
@@ -166,16 +167,25 @@ All evaluation data is invented and hand-labelled. It lives in `evaluation/data/
 - **How it is scored.** A header counts as correct only when it maps to the labelled field. For the 18 "ignore"
   headers, correct means left unmapped. Cleaning is scored value by value against `messy_labels.csv`. Flags are
   scored as (row, check) pairs.
-- **What the rules miss.** All 13 misses are listed in `results.json`. Examples: "Page To" and "Your page" are
+- **What the rules miss.** The rules get 13 headers wrong. Examples: "Page To" and "Your page" are
   read as the linking page rather than the target, "Content type" is taken for a link type, and "Spam Score" is
   taken for a rating.
 - **Where the AI step comes in.** These are exactly the doubtful or unmapped headers the AI step is asked about,
   and the column page shows them in yellow or red for review. With `AI_API_KEY` set, the same command also reports
-  a "heuristics + AI" accuracy, counted only when the model actually answered.
+  a "heuristics + AI" accuracy, counted only when the model actually answered. In the measured run all 31 calls
+  were answered: the model fixed four headers the rules missed ("Page To", "Links to", "Your page" and "Link
+  label") and got one wrong that the rules had right ("Image link", read as a link type), leaving 10 misses
+  instead of 13. `results.json` lists the headers still mapped wrong.
 - **Scope.** The cleaning set is small and was written alongside the rules, so it checks that each rule does what
   it says. It is not a claim about every export format.
 
 ![Evaluation output](docs/screenshots/evaluation.png)
+
+*The evaluation with the rules only: 88.4% of headers mapped correctly, and every miss listed.*
+
+![Evaluation output with the AI step](docs/screenshots/evaluation-ai.png)
+
+*The same evaluation with `AI_API_KEY` set: the doubtful headers go to the model and accuracy rises to 91.1%.*
 
 ## Tech stack
 

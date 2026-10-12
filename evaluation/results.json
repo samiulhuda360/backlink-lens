@@ -1,10 +1,10 @@
 {
- "ai": "off (no AI_API_KEY)",
+ "ai": "gemini-flash-lite-latest",
  "column_detection": {
   "headers": 112,
   "heuristic_accuracy": 0.884,
-  "with_ai_accuracy": null,
-  "ai_headers_asked": 0,
+  "with_ai_accuracy": 0.911,
+  "ai_headers_asked": 31,
   "misses": [
    {
     "header": "Found on page",
@@ -34,30 +34,6 @@
     "header": "Sites Linking In",
     "expected": "referring_domains",
     "heuristic": "referring_domain",
-    "final": "referring_domain"
-   },
-   {
-    "header": "Page To",
-    "expected": "target_url",
-    "heuristic": "referring_page",
-    "final": "referring_page"
-   },
-   {
-    "header": "Links to",
-    "expected": "target_url",
-    "heuristic": "anchor",
-    "final": "anchor"
-   },
-   {
-    "header": "Your page",
-    "expected": "target_url",
-    "heuristic": "referring_page",
-    "final": "referring_page"
-   },
-   {
-    "header": "Link label",
-    "expected": "anchor",
-    "heuristic": "referring_page",
     "final": "referring_page"
    },
    {
@@ -77,6 +53,12 @@
     "expected": null,
     "heuristic": "referring_page",
     "final": "referring_page"
+   },
+   {
+    "header": "Image link",
+    "expected": null,
+    "heuristic": null,
+    "final": "link_type"
    },
    {
     "header": "Content type",
